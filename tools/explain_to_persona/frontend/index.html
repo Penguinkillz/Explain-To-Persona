@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Explain to a Persona</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      :root {
+        --bg: #000;
+        --bg-panel: #0a0a0a;
+        --border: #1a1a1a;
+        --accent: #ef4444;
+        --accent-dim: #b91c1c;
+        --red-shadow: rgba(220, 38, 38, 0.35);
+        --red-glow: rgba(239, 68, 68, 0.25);
+        --text: #e5e5e5;
+        --muted: #737373;
+        --danger: #f87171;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #000;
+        color: var(--text);
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      .app-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+        gap: 0;
+        width: 100%;
+        max-width: 1280px;
+        background: var(--bg-panel);
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        box-shadow:
+          0 0 0 1px rgba(0, 0, 0, 0.8),
+          0 24px 48px rgba(0, 0, 0, 0.6),
+          0 0 80px var(--red-shadow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        overflow: hidden;
+      }
+
+      .left-pane,
+      .right-pane {
+        padding: 24px 28px;
+        overflow: auto;
+      }
+
+      .left-pane {
+        border-right: 1px solid var(--border);
+        background: var(--bg-panel);
+      }
+
+      .right-pane {
+        background: #050505;
+        border-left: 1px solid transparent;
+        box-shadow: -8px 0 24px var(--red-shadow);
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .title-block {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        background: #111;
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 20px var(--red-shadow), 0 4px 12px rgba(0, 0, 0, 0.5);
+        font-weight: 700;
+        font-size: 20px;
+        color: var(--accent);
+      }
+
+      h1 {
+        font-size: 18px;
+        margin: 0;
+        letter-spacing: 0.02em;
+        font-weight: 600;
+      }
+
+      .subtitle {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      .badge {
+        padding: 5px 10px;
+        border-radius: 2px;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        font-size: 10px;
+        color: var(--muted);
+        background: rgba(239, 68, 68, 0.08);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        white-space: nowrap;
+        box-shadow: 0 0 12px var(--red-shadow);
+      }
+
+      .form-grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      label {
+        display: block;
+        font-size: 12px;
+        margin-bottom: 6px;
+        color: var(--muted);
+      }
+
+      .field {
+        background: #000;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        padding: 10px 12px;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .field:focus-within {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 1px var(--accent), 0 0 20px var(--red-glow);
+      }
+
+      .field.disabled {
+        opacity: 0.45;
+        pointer-events: none;
+      }
+
+      .field-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 2px;
+      }
+
+      .field-title {
+        font-size: 12px;
+        color: var(--text);
+      }
+
+      .field-hint {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      textarea,
+      input,
+      select {
+        width: 100%;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 13px;
+        resize: vertical;
+      }
+
+      textarea::placeholder,
+      input::placeholder {
+        color: #525252;
+      }
+
+      textarea { min-height: 70px; }
+
+      select option {
+        background: #0a0a0a;
+      }
+
+      .controls-row {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        margin-top: 14px;
+      }
+
+      .btn-primary {
+        border: 1px solid rgba(239, 68, 68, 0.5);
+        outline: none;
+        border-radius: 4px;
+        padding: 10px 20px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #fff;
+        background: linear-gradient(180deg, #1a0a0a 0%, #0a0505 100%);
+        box-shadow:
+          0 0 24px var(--red-shadow),
+          0 4px 12px rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: box-shadow 0.15s ease, border-color 0.15s ease;
+      }
+
+      .btn-primary:hover {
+        border-color: var(--accent);
+        box-shadow: 0 0 32px var(--red-shadow), 0 0 40px var(--red-glow);
+      }
+
+      .btn-primary:active {
+        box-shadow: 0 0 16px var(--red-shadow);
+      }
+
+      .btn-primary[disabled] {
+        opacity: 0.6;
+        cursor: wait;
+        box-shadow: none;
+      }
+
+      .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .results-title {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text);
+      }
+
+      .results-meta {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .empty-state {
+        margin-top: 14px;
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .status {
+        margin-top: 8px;
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .status.error { color: var(--danger); }
+
+      .explanations-list {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .explanation-card {
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        background: #000;
+        padding: 14px 16px;
+        font-size: 13px;
+        line-height: 1.7;
+        color: var(--text);
+        box-shadow: 0 0 20px var(--red-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+      }
+
+      .explanation-num {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--accent);
+        letter-spacing: 0.08em;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+      }
+
+      .key-insight-card {
+        border-radius: 4px;
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        background: rgba(239, 68, 68, 0.06);
+        padding: 14px 16px;
+        margin-top: 18px;
+        font-size: 13px;
+        line-height: 1.6;
+        color: #fca5a5;
+        box-shadow: 0 0 24px var(--red-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      }
+
+      .key-insight-label {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--accent);
+        letter-spacing: 0.08em;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+      }
+
+      @media (max-width: 900px) {
+        body { padding: 12px; }
+        .app-shell { grid-template-columns: minmax(0, 1fr); }
+        .right-pane { box-shadow: none; }
+        .left-pane {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <section class="left-pane">
+        <header class="header">
+          <div class="title-block">
+            <div class="logo">&#128172;</div>
+            <div>
+              <h1>Explain to a Persona</h1>
+              <div class="subtitle">Get 2–3 explanations in their voice + one key insight.</div>
+            </div>
+          </div>
+          <div class="badge">MVP</div>
+        </header>
+
+        <form id="explain-form" class="form-grid">
+          <div class="field">
+            <div class="field-header">
+              <div class="field-title">Concept to explain</div>
+              <div class="field-hint">Required</div>
+            </div>
+            <textarea id="concept" rows="3" placeholder="e.g. blockchain, compound interest, or how vaccines work"></textarea>
+          </div>
+
+          <div class="field">
+            <div class="field-header">
+              <div class="field-title">Persona</div>
+            </div>
+            <select id="persona">
+              <option value="10-year-old">10-year-old</option>
+              <option value="Your grandma">Your grandma</option>
+              <option value="Skeptical investor">Skeptical investor</option>
+              <option value="Hiring manager">Hiring manager</option>
+              <option value="Curious teenager">Curious teenager</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <div class="field-header">
+              <div class="field-title">Source material</div>
+              <div class="field-hint">Optional: paste notes or upload PDF/DOCX</div>
+            </div>
+            <input type="file" id="source-files" accept=".pdf,.docx" multiple style="margin-bottom: 8px; font-size: 12px;" />
+            <textarea id="sources-text" placeholder="Paste your notes or article text here." rows="4"></textarea>
+          </div>
+
+          <div class="controls-row">
+            <button type="submit" class="btn-primary" id="explain-btn">
+              <span id="explain-label">Explain</span>
+              <span id="explain-spinner" style="display:none">...</span>
+            </button>
+          </div>
+
+          <div id="status" class="status"></div>
+        </form>
+      </section>
+
+      <section class="right-pane">
+        <div class="results-header">
+          <div class="results-title">Explanations</div>
+          <div class="results-meta" id="results-meta">Nothing yet.</div>
+        </div>
+        <div id="explanations" class="explanations-list"></div>
+        <div id="key-insight-wrap" style="display: none;"></div>
+        <div class="empty-state" id="empty-state">
+          Enter a concept, pick a persona, then click <strong>Explain</strong>.
+          You can optionally paste notes or upload a PDF/DOCX to ground the explanation.
+        </div>
+      </section>
+    </div>
+
+    <script src="./main.js"></script>
+  </body>
+</html>
