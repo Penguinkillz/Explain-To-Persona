@@ -8,3 +8,8 @@ __pycache__/
 .vscode/
 .DS_Store
 *.log
+
+# Next.js frontend — do NOT ignore frontend/out/ (must be committed)
+frontend/.next/
+frontend/node_modules/
+frontend/.env.local

@@ -46,8 +46,39 @@ def _sanitize(content: str) -> str:
     return content
 
 
+def _fix_json_escapes(s: str) -> str:
+    """Replace invalid JSON escape sequences with literal chars. Keep valid: \", \\, \/, \b, \f, \n, \r, \t, \uXXXX."""
+    result = []
+    i = 0
+    while i < len(s):
+        if s[i] == "\\" and i + 1 < len(s):
+            next_c = s[i + 1]
+            if next_c in '"\\/bfnrt':
+                result.append("\\")
+                result.append(next_c)
+                i += 2
+            elif next_c == "u" and i + 5 <= len(s):
+                hex_part = s[i + 2 : i + 6]
+                if all(h in "0123456789abcdefABCDEF" for h in hex_part):
+                    result.append("\\")
+                    result.append("u")
+                    result.append(hex_part)
+                    i += 6
+                else:
+                    result.append(next_c)
+                    i += 2
+            else:
+                result.append(next_c)
+                i += 2
+        else:
+            result.append(s[i])
+            i += 1
+    return "".join(result)
+
+
 def _parse_response(content: str) -> dict:
     content = _sanitize(content)
+    content = _fix_json_escapes(content)
     try:
         return json.loads(content)
     except json.JSONDecodeError:
@@ -75,6 +106,7 @@ def explain_to_persona(payload: ExplainToPersonaRequest) -> ExplainToPersonaResp
                 {"role": "user", "content": prompt},
             ],
             temperature=0.7,
+            response_format={"type": "json_object"},
         )
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"LLM API error: {exc}") from exc

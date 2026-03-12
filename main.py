@@ -18,4 +18,4 @@ app.add_middleware(
 )
 
 app.include_router(explain_router, prefix="/api")
-app.mount("/", StaticFiles(directory="tools/explain_to_persona/frontend", html=True), name="frontend")
+app.mount("/", StaticFiles(directory="frontend/out", html=True), name="frontend")

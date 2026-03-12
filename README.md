@@ -7,7 +7,7 @@ Standalone MVP: explain any concept in the voice of a chosen persona. Part of a 
 - **Concept + persona**: Enter a concept (e.g. blockchain, compound interest) and pick a persona. Get 2–3 short explanations in that persona’s voice plus **one thing this person would care about most**.
 - **Optional sources**: Paste notes or upload PDF/DOCX to ground the explanation in your material.
 - **API**: JSON `POST /api/explain-to-persona/explain` or multipart `POST /api/explain-to-persona/explain-from-files` for file/paste.
-- **Plain frontend**: Dark theme, HTML/CSS/JS only — no React, no npm, no build step.
+- **Frontend**: Next.js 15, TypeScript, Tailwind CSS, Framer Motion. Red/crimson theme.
 
 ## Personas (fixed list)
 
@@ -28,19 +28,34 @@ Standalone MVP: explain any concept in the voice of a chosen persona. Part of a 
    pip install -r requirements.txt
    ```
 
-2. **Environment**: Copy `.env.example` to `.env` and set at least:
+2. **Environment**: Copy `.env.example` to `.env` and set `PLATFORM_GROQ_API_KEY`.
 
-   - `PLATFORM_GROQ_API_KEY` (required for Groq)
+3. **Local dev** (two terminals):
 
-   Optional: `PLATFORM_GROQ_API_KEY_2`, `PLATFORM_GROQ_API_KEY_3` for key rotation; `PLATFORM_OPENAI_API_KEY` for OpenAI fallback.
-
-3. **Run**:
-
+   **Terminal 1 — FastAPI backend:**
    ```bash
    uvicorn main:app --reload --port 8000
    ```
 
-   Open http://localhost:8000
+   **Terminal 2 — Next.js frontend:**
+   ```bash
+   cd frontend
+   copy .env.example .env.local
+   npm install
+   npm run dev
+   ```
+   Open http://localhost:3000 (frontend proxies API to backend via `NEXT_PUBLIC_API_URL`).
+
+4. **After frontend changes** (before deploy):
+   ```bash
+   cd frontend
+   npm run build
+   cd ..
+   git add -A
+   git commit -m "update frontend"
+   git push
+   ```
+   The built `frontend/out/` is committed so Railway serves it (no Node.js on Railway).
 
 ## Deploy on Railway
 
