@@ -47,7 +47,7 @@ def _sanitize(content: str) -> str:
 
 
 def _fix_json_escapes(s: str) -> str:
-    """Replace invalid JSON escape sequences with literal chars. Keep valid: \", \\, \/, \b, \f, \n, \r, \t, \uXXXX."""
+    r"""Replace invalid JSON escape sequences with literal chars. Keep valid: \", \\, \/, \b, \f, \n, \r, \t, \uXXXX."""
     result = []
     i = 0
     while i < len(s):
